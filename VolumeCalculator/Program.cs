@@ -9,7 +9,7 @@ namespace DiskSpaceChecker
         {
             while (true)
             {
-                Console.WriteLine("Welche Informationen möchtest du anzeigen? (1 - Gesamtvolumen, 2 - Freier Speicher, 3 - Freier Speicher in Prozent, 4 - Beenden)");
+                Console.WriteLine("Welche Informationen möchtest du anzeigen? (1 - Gesamtvolumen, 2 - Volumen Info, 3 - Freier Speicher in Prozent, 4 - Beenden)");
                 int option = int.Parse(Console.ReadLine());
 
                 switch (option)
@@ -32,23 +32,7 @@ namespace DiskSpaceChecker
                 }
             }
         }
-
-        static void ShowTotalSpace()
-        {
-            double totalSpace = 0;
-
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.IsReady)
-                {
-                    Console.WriteLine("{0} - Gesamtvolumen: {1:F2} GB", drive.Name, (drive.TotalSize / (1024 * 1024 * 1024)));
-                    totalSpace += drive.TotalSize;
-                }
-            }
-
-            Console.WriteLine("Gesamtspeicher: {0:F2} GB", (totalSpace / (1024 * 1024 * 1024)));
-            Console.WriteLine();
-        }
+        
 
         static void ShowFreeSpace()
         {
@@ -64,6 +48,30 @@ namespace DiskSpaceChecker
             }
 
             Console.WriteLine("Freier Speicher insgesamt: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
+            Console.WriteLine();
+        }
+        
+        static void ShowTotalSpace()
+        {
+            double totalFreeSpace = 0;
+            double totalSpace = 0;
+            double totalSpace2 = 0;
+
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (drive.IsReady)
+                {
+                    totalFreeSpace += drive.TotalFreeSpace;
+                    totalSpace += drive.TotalSize;
+                    totalSpace2 += drive.TotalSize;
+                }
+            }
+
+            double totalPercentFreeSpace = (totalFreeSpace / totalSpace) * 100;
+
+            Console.WriteLine("Gesamtspeicher: {0:F2} GB / {0:}", (totalSpace / (1024 * 1024 * 1024)), (totalSpace2 / (1024 * 1024 * 1024)));
+            Console.WriteLine("Freier Speicher: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
+            Console.WriteLine("Freier Speicher insgesamt: {0:F2}%", totalPercentFreeSpace);
             Console.WriteLine();
         }
 
