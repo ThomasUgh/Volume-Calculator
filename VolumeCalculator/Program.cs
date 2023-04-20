@@ -66,7 +66,7 @@
 
             double totalPercentFreeSpace = (totalFreeSpace / totalSpace) * 100;
 
-            Console.WriteLine("Gesamtspeicher: {0:F2} GB / {0:}", (totalSpace / (1024 * 1024 * 1024)), (totalSpace2 / (1024 * 1024 * 1024)));
+            Console.WriteLine("Gesamtspeicher: {0:F2} GB / {0:F2}", (totalSpace / (1024 * 1024 * 1024)), (totalSpace2 / (1024 * 1024 * 1024)));
             Console.WriteLine("Freier Speicher: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
             Console.WriteLine("Freier Speicher insgesamt: {0:F2}%", totalPercentFreeSpace);
             Console.WriteLine();
