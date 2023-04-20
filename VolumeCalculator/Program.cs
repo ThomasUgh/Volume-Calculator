@@ -1,13 +1,15 @@
-﻿namespace VolumeCalculator
+﻿using static System.Console;
+
+namespace VolumeCalculator
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             while (true)
             {
-                Console.WriteLine("Welche Informationen möchtest du anzeigen? (1 - Gesamtvolumen, 2 - Volumen Info, 3 - Freier Speicher in Prozent, 4 - Beenden)");
-                int option = int.Parse(Console.ReadLine());
+                WriteLine("Welche Informationen möchtest du anzeigen? (1 - Gesamtvolumen, 2 - Volumen Info, 3 - Freier Speicher in Prozent, 4 - Beenden)");
+                var option = int.Parse(ReadLine());
 
                 switch (option)
                 {
@@ -24,72 +26,66 @@
                         Environment.Exit(0);
                         break;
                     default:
-                        Console.WriteLine("Ungültige Option.");
+                        WriteLine("Ungültige Option.");
                         break;
                 }
             }
         }
-        
 
-        static void ShowFreeSpace()
+
+        private static void ShowFreeSpace()
         {
             double totalFreeSpace = 0;
 
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            foreach (var drive in DriveInfo.GetDrives())
             {
-                if (drive.IsReady)
-                {
-                    Console.WriteLine("{0} - Freier Speicher: {1:F2} GB", drive.Name, (drive.TotalFreeSpace / (1024 * 1024 * 1024)));
-                    totalFreeSpace += drive.TotalFreeSpace;
-                }
+                if (!drive.IsReady) continue;
+                WriteLine("{0} - Freier Speicher: {1:F2} GB", drive.Name, (drive.TotalFreeSpace / (1024 * 1024 * 1024)));
+                totalFreeSpace += drive.TotalFreeSpace;
             }
 
-            Console.WriteLine("Freier Speicher insgesamt: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
-            Console.WriteLine();
+            WriteLine("Freier Speicher insgesamt: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
+            WriteLine();
         }
-        
-        static void ShowTotalSpace()
+
+        private static void ShowTotalSpace()
         {
             double totalFreeSpace = 0;
             double totalSpace = 0;
             double totalSpace2 = 0;
 
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            foreach (var drive in DriveInfo.GetDrives())
             {
-                if (drive.IsReady)
-                {
-                    totalFreeSpace += drive.TotalFreeSpace;
-                    totalSpace += drive.TotalSize;
-                    totalSpace2 += drive.TotalSize;
-                }
+                if (!drive.IsReady) continue;
+                totalFreeSpace += drive.TotalFreeSpace;
+                totalSpace += drive.TotalSize;
+                totalSpace2 += drive.TotalSize;
             }
 
-            double totalPercentFreeSpace = (totalFreeSpace / totalSpace) * 100;
+            var totalPercentFreeSpace = (totalFreeSpace / totalSpace) * 100;
 
-            Console.WriteLine("Gesamtspeicher: {0:F2} GB / {0:F2}", (totalSpace / (1024 * 1024 * 1024)), (totalSpace2 / (1024 * 1024 * 1024)));
-            Console.WriteLine("Freier Speicher: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
-            Console.WriteLine("Freier Speicher insgesamt: {0:F2}%", totalPercentFreeSpace);
-            Console.WriteLine();
+            WriteLine("Gesamtspeicher: {0:F2} GB / {0:F2}", (totalSpace / (1024 * 1024 * 1024)), (totalSpace2 / (1024 * 1024 * 1024)));
+            WriteLine("Freier Speicher: {0:F2} GB", (totalFreeSpace / (1024 * 1024 * 1024)));
+            WriteLine("Freier Speicher insgesamt: {0:F2}%", totalPercentFreeSpace);
+            WriteLine();
         }
 
-        static void ShowFreeSpacePercentage()
+        private static void ShowFreeSpacePercentage()
         {
             double totalFreeSpace = 0;
             double totalSpace = 0;
 
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            foreach (var drive in DriveInfo.GetDrives())
             {
-                if (drive.IsReady)
-                {
-                    totalFreeSpace += drive.TotalFreeSpace;
-                    totalSpace += drive.TotalSize;
-                }
+                if (!drive.IsReady) continue;
+                totalFreeSpace += drive.TotalFreeSpace;
+                totalSpace += drive.TotalSize;
             }
 
-            double totalPercentFreeSpace = (totalFreeSpace / totalSpace) * 100;
+            var percentFreeSpace = (totalFreeSpace / totalSpace) * 100;
 
-            Console.WriteLine("Freier Speicher insgesamt: {0:F2}%", totalPercentFreeSpace);
-            Console.WriteLine();
+            WriteLine("Freier Speicher insgesamt: {0:F2}%", percentFreeSpace);
+            WriteLine();
         }
     }
 }
