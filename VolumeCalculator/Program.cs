@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace DiskSpaceChecker
+﻿namespace VolumeCalculator
 {
     class Program
     {
