@@ -13,6 +13,7 @@ class VolumeCalculatorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Volume Calculator',
       theme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.blue,
       ),
       home: VolumeDashboard(),
@@ -51,9 +52,8 @@ class _VolumeDashboardState extends State<VolumeDashboard> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: GridView.count(
-          crossAxisCount: 3,
-          children: volumeData.map((volume) => VolumeChart(volume)).toList(),
+        child: ListView(
+          children: volumeData.map((volume) => VolumeCard(volume)).toList(),
         ),
       ),
     );
@@ -62,16 +62,19 @@ class _VolumeDashboardState extends State<VolumeDashboard> {
 
 class VolumeData {
   final String name;
+  final String manufacturer;
+  final String fileSystem;
   final double usedSpace;
   final double totalSpace;
 
-  VolumeData(this.name, this.usedSpace, this.totalSpace);
+  VolumeData(this.name, this.manufacturer, this.fileSystem, this.usedSpace,
+      this.totalSpace);
 }
 
-class VolumeChart extends StatelessWidget {
+class VolumeCard extends StatelessWidget {
   final VolumeData volume;
 
-  VolumeChart(this.volume);
+  VolumeCard(this.volume);
 
   @override
   Widget build(BuildContext context) {
@@ -93,19 +96,46 @@ class VolumeChart extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
           children: [
-            Text(
-                '${volume.usedSpace.toStringAsFixed(1)}GB / ${volume.totalSpace.toStringAsFixed(1)}GB'),
             Expanded(
-              child: charts.PieChart<String>(
-                series,
-                animate: true,
-                defaultRenderer: charts.ArcRendererConfig(
-                  arcWidth: 60,
-                  arcRendererDecorators: [charts.ArcLabelDecorator()],
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    '${volume.usedSpace.toStringAsFixed(1)}GB / ${volume.totalSpace.toStringAsFixed(1)}GB benutzt',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 200,
+                    child: charts.PieChart<String>(
+                      series,
+                      animate: true,
+                      defaultRenderer: charts.ArcRendererConfig(
+                        arcWidth: 60,
+                        arcRendererDecorators: [charts.ArcLabelDecorator()],
+                      ),
+                    ),
+                  ),
+                  Text('Laufwerksbuchstabe: ${volume.name}'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Name: ${volume.name}', style: TextStyle(fontSize: 16)),
+                  Text('Hersteller: ${volume.manufacturer}',
+                      style: TextStyle(fontSize: 16)),
+                  Text('Datenformat: ${volume.fileSystem}',
+                      style: TextStyle(fontSize: 16)),
+                  Text('Kapazität: ${volume.totalSpace.toStringAsFixed(1)}TB',
+                      style: TextStyle(fontSize: 16)),
+                  Text(
+                      'Freier Speicher: ${(volume.totalSpace - volume.usedSpace).toStringAsFixed(1)}TB',
+                      style: TextStyle(fontSize: 16)),
+                ],
               ),
             ),
           ],
@@ -119,20 +149,23 @@ Future<List<VolumeData>> getVolumes() async {
   List<VolumeData> volumes = [];
 
   try {
-    var result = await Process.run(
-        'wmic', ['logicaldisk', 'get', 'size,freespace,caption']);
+    var result = await Process.run('wmic',
+        ['logicaldisk', 'get', 'size,freespace,caption,volumename,filesystem']);
     if (result.exitCode == 0) {
       var lines = result.stdout.split('\n');
       for (var line in lines) {
         var parts = line.trim().split(RegExp(r'\s+'));
-        if (parts.length == 3 && parts[0] != 'Caption') {
+        if (parts.length == 5 && parts[0] != 'Caption') {
           var name = parts[0];
           var freeSpace = double.tryParse(parts[1]) ?? 0;
           var totalSpace = double.tryParse(parts[2]) ?? 0;
+          var manufacturer = parts[3];
+          var fileSystem = parts[4];
           var usedSpace = (totalSpace - freeSpace) / (1024 * 1024 * 1024);
           totalSpace = totalSpace / (1024 * 1024 * 1024); // Convert to GB
           if (totalSpace > 0) {
-            volumes.add(VolumeData(name, usedSpace, totalSpace));
+            volumes.add(VolumeData(
+                name, manufacturer, fileSystem, usedSpace, totalSpace));
           }
         }
       }
